@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Beyaz Kuş - Mobil AI Asistan">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Beyaz Kuş Mobile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- PWA Yükleme Bildirimi -->
+    <div id="installPrompt" class="install-prompt">
+        <div class="install-prompt-content">
+            <div class="install-prompt-text">
+                <h3>🕊️ Beyaz Kuş'u Yükle</h3>
+                <p>Uygulamayı telefonuna yükle, daha hızlı kullan!</p>
+            </div>
+            <div class="install-prompt-buttons">
+                <button class="install-btn" onclick="installApp()">Yükle</button>
+                <button class="dismiss-btn" onclick="dismissInstall()">Sonra</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🕊️ Beyaz Kuş</h1>
+            <p class="subtitle">Mobil AI Asistan</p>
+            <div class="user-info">
+                <span id="currentUser"></span>
+                <button id="volumeBtn" onclick="toggleVolume()">🔊</button>
+                <button id="logoutBtn" onclick="logout()">Çıkış</button>
+            </div>
+        </header>
+
+        <div class="chat-container">
+            <div id="messages" class="messages"></div>
+            
+            <div class="input-area">
+                <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                <button id="imageBtn" onclick="document.getElementById('imageInput').click()">📷</button>
+                <textarea 
+                    id="userInput" 
+                    placeholder="Mesajını yaz..."
+                    rows="2"
+                ></textarea>
+                <button id="micBtn" onclick="toggleVoice()">🎤</button>
+                <button id="sendBtn" onclick="sendMessage()">📤</button>
+            </div>
+            
+            <div id="imagePreview" style="display:none;">
+                <img id="previewImg">
+                <button onclick="clearImage()">❌</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="smart-ai.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyaz Kuş - Giriş</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .login-container h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            background: #5568d3;
+        }
+        
+        .switch-mode {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .switch-mode a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🕊️ Beyaz Kuş</h1>
+            <p class="subtitle">Giriş Yap</p>
+        </header>
+
+        <div class="login-container">
+            <h2 id="formTitle">Giriş Yap</h2>
+            
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <button type="submit" class="btn-login" id="submitBtn">Giriş Yap</button>
+            </form>
+            
+            <div class="switch-mode">
+                <span id="switchText">Hesabın yok mu?</span>
+                <a href="#" id="switchMode">Kayıt Ol</a>
+            </div>
+            
+            <div class="error" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+        
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const switchText = document.getElementById('switchText');
+        const switchMode = document.getElementById('switchMode');
+        const authForm = document.getElementById('authForm');
+        const errorMsg = document.getElementById('errorMsg');
+        
+        // Mod değiştir (Giriş/Kayıt)
+        switchMode.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                formTitle.textContent = 'Giriş Yap';
+                submitBtn.textContent = 'Giriş Yap';
+                switchText.textContent = 'Hesabın yok mu?';
+                switchMode.textContent = 'Kayıt Ol';
+            } else {
+                formTitle.textContent = 'Kayıt Ol';
+                submitBtn.textContent = 'Kayıt Ol';
+                switchText.textContent = 'Hesabın var mı?';
+                switchMode.textContent = 'Giriş Yap';
+            }
+            errorMsg.textContent = '';
+        });
+        
+        // Form gönder
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (isLoginMode) {
+                // Giriş yap
+                const users = JSON.parse(localStorage.getItem('beyazKusUsers') || '{}');
+                
+                if (users[username] && users[username] === password) {
+                    // Başarılı giriş
+                    localStorage.setItem('beyazKusCurrentUser', username);
+                    window.location.href = 'index.html';
+                } else {
+                    errorMsg.textContent = 'Kullanıcı adı veya şifre hatalı!';
+                }
+            } else {
+                // Kayıt ol
+                const users = JSON.parse(localStorage.getItem('beyazKusUsers') || '{}');
+                
+                if (users[username]) {
+                    errorMsg.textContent = 'Bu kullanıcı adı zaten alınmış!';
+                } else {
+                    // Yeni kullanıcı kaydet
+                    users[username] = password;
+                    localStorage.setItem('beyazKusUsers', JSON.stringify(users));
+                    
+                    // Otomatik giriş yap
+                    localStorage.setItem('beyazKusCurrentUser', username);
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
