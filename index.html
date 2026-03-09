@@ -2,63 +2,358 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Beyaz Kuş - Mobil AI Asistan">
-    <meta name="theme-color" content="#667eea">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Beyaz Kuş Mobile</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEYAZ KUŞ - AI Asistan v1.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .message-bubble {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ai-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .user-message {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        .image-editor {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .tool-button {
+            transition: all 0.3s ease;
+        }
+        .tool-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .canvas-container {
+            position: relative;
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+        }
+        .mobile-menu {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            .desktop-only {
+                display: none;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .text-4xl {
+                font-size: 2rem;
+            }
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+            .h-96 {
+                height: 16rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- PWA Yükleme Bildirimi -->
-    <div id="installPrompt" class="install-prompt">
-        <div class="install-prompt-content">
-            <div class="install-prompt-text">
-                <h3>🕊️ Beyaz Kuş'u Yükle</h3>
-                <p>Uygulamayı telefonuna yükle, daha hızlı kullan!</p>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="login-container w-full max-w-md p-8 rounded-2xl shadow-2xl">
+            <div class="text-center mb-8">
+                <i class="fas fa-dove text-6xl text-purple-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">BEYAZ KUŞ</h1>
+                <p class="text-gray-600">AI Asistan v1.0 - Giriş Yap</p>
             </div>
-            <div class="install-prompt-buttons">
-                <button class="install-btn" onclick="installApp()">Yükle</button>
-                <button class="dismiss-btn" onclick="dismissInstall()">Sonra</button>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                        <i class="fas fa-user mr-2"></i>Kullanıcı Adı
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Kullanıcı adınızı girin"
+                        required
+                    >
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        <i class="fas fa-lock mr-2"></i>Şifre
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Şifrenizi girin"
+                        required
+                    >
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition font-bold"
+                >
+                    <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Herhangi bir kullanıcı adı ve şifre ile giriş yapabilirsiniz
+                </p>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>🕊️ Beyaz Kuş</h1>
-            <p class="subtitle">Mobil AI Asistan</p>
-            <div class="user-info">
-                <span id="currentUser"></span>
-                <button id="volumeBtn" onclick="toggleVolume()">🔊</button>
-                <button id="logoutBtn" onclick="logout()">Çıkış</button>
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden min-h-screen">
+        <!-- Mobile Menu Button -->
+        <div class="mobile-menu fixed top-4 right-4 z-50">
+            <button onclick="toggleMobileMenu()" class="px-4 py-2 bg-purple-600 text-white rounded-lg shadow-lg">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-purple-600 z-40 hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold text-white">
+                        <i class="fas fa-dove mr-2"></i>BEYAZ KUŞ
+                    </h2>
+                    <button onclick="toggleMobileMenu()" class="text-white text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <button onclick="showSection('chat'); toggleMobileMenu();" class="w-full px-4 py-3 bg-white text-purple-600 rounded-lg font-bold">
+                        <i class="fas fa-comments mr-2"></i>Sohbet
+                    </button>
+                    <button onclick="showSection('image'); toggleMobileMenu();" class="w-full px-4 py-3 bg-white text-purple-600 rounded-lg font-bold">
+                        <i class="fas fa-image mr-2"></i>Görsel Editör
+                    </button>
+                    <button onclick="logout()" class="w-full px-4 py-3 bg-red-500 text-white rounded-lg font-bold">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
+                    </button>
+                </div>
+                
+                <div class="mt-8 text-white">
+                    <p class="text-sm opacity-90">Kullanıcı: <span id="mobileUsername" class="font-bold"></span></p>
+                    <p class="text-xs opacity-75 mt-2">v1.0 - Ödül Ensar Yılmaz</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="text-center py-6 px-4">
+            <h1 class="text-4xl font-bold text-white mb-2">
+                <i class="fas fa-dove mr-3"></i>BEYAZ KUŞ
+            </h1>
+            <p class="text-white text-lg">⚡ Dünyanın En Hızlı AI Asistanı - Sürüm 1.0</p>
+            <p class="text-white text-sm mt-2 opacity-90">CGBT'ye bağlı olmayan, ultra hızlı yapay zeka</p>
+            <p class="text-white text-sm mt-1 opacity-80">Geliştirici: Ödül Ensar Yılmaz | Matematik Dehası</p>
+            <div class="mt-4">
+                <span class="text-white text-sm">Hoş geldin, <span id="desktopUsername" class="font-bold"></span>!</span>
             </div>
         </header>
 
-        <div class="chat-container">
-            <div id="messages" class="messages"></div>
-            
-            <div class="input-area">
-                <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-                <button id="imageBtn" onclick="document.getElementById('imageInput').click()">📷</button>
-                <textarea 
-                    id="userInput" 
-                    placeholder="Mesajını yaz..."
-                    rows="2"
-                ></textarea>
-                <button id="micBtn" onclick="toggleVoice()">🎤</button>
-                <button id="sendBtn" onclick="sendMessage()">📤</button>
+        <div class="container mx-auto px-4 pb-8">
+            <!-- Desktop Navigation -->
+            <div class="desktop-only flex justify-center mb-6">
+                <div class="bg-white bg-opacity-90 rounded-lg p-2 inline-flex">
+                    <button onclick="showSection('chat')" class="px-6 py-2 bg-purple-600 text-white rounded-lg font-bold mr-2">
+                        <i class="fas fa-comments mr-2"></i>Sohbet
+                    </button>
+                    <button onclick="showSection('image')" class="px-6 py-2 bg-gray-600 text-white rounded-lg font-bold">
+                        <i class="fas fa-image mr-2"></i>Görsel Editör
+                    </button>
+                    <button onclick="logout()" class="px-6 py-2 bg-red-500 text-white rounded-lg font-bold ml-2">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
+                    </button>
+                </div>
             </div>
-            
-            <div id="imagePreview" style="display:none;">
-                <img id="previewImg">
-                <button onclick="clearImage()">❌</button>
+
+            <!-- Chat Section -->
+            <div id="chatSection" class="section">
+                <div class="chat-container rounded-2xl shadow-2xl p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">
+                            <i class="fas fa-comments mr-2"></i>Sohbet
+                        </h2>
+                        <div class="flex gap-2">
+                            <button onclick="toggleSpeech()" id="speechToggle" class="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm md:text-base">
+                                <i class="fas fa-volume-up mr-1"></i>Ses
+                            </button>
+                            <button onclick="stopSpeech()" class="px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition text-sm md:text-base">
+                                <i class="fas fa-stop mr-1"></i>Dur
+                            </button>
+                            <button onclick="clearChat()" class="px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm md:text-base">
+                                <i class="fas fa-trash mr-1 md:mr-2"></i>Temizle
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="chatMessages" class="h-64 md:h-96 overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div class="message-bubble ai-message mb-3 p-3 rounded-lg">
+                            <p>⚡ Merhaba! Ben BEYAZ KUŞ, dünyanın en hızlı AI asistanıyım! Geliştiricim Ödül Ensar Yılmaz sayesinde anında cevap veriyorum! Matematik dehasıyım ve sesli olarak konuşuyorum! Size nasıl yardımcı olabilirim?</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="userInput" 
+                            placeholder="Mesajınızı yazın..." 
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base"
+                            onkeypress="if(event.key === 'Enter') sendMessage()"
+                        >
+                        <button 
+                            onclick="sendMessage()" 
+                            class="px-4 md:px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition"
+                        >
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Editor Section -->
+            <div id="imageSection" class="section hidden">
+                <div class="image-editor p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">
+                            <i class="fas fa-image mr-2"></i>Görsel İşlem Merkezi
+                        </h2>
+                        <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="loadImage(event)">
+                        <button onclick="document.getElementById('imageUpload').click()" class="px-3 md:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm md:text-base">
+                            <i class="fas fa-upload mr-1 md:mr-2"></i>Görsel Yükle
+                        </button>
+                    </div>
+                    
+                    <div class="canvas-container mb-4 p-4">
+                        <canvas id="imageCanvas" width="400" height="300" class="w-full"></canvas>
+                    </div>
+                    
+                    <!-- AI Komut Paneli -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <h3 class="font-bold text-gray-800 mb-3">
+                            <i class="fas fa-magic mr-2"></i>AI Görsel Komutları
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <button onclick="executeImageCommand('arka_plan_siyah')" class="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 text-sm">
+                                <i class="fas fa-fill mr-2"></i>Arka Planı Siyah Yap
+                            </button>
+                            <button onclick="executeImageCommand('arka_plan_beyaz')" class="px-3 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm">
+                                <i class="fas fa-square mr-2"></i>Arka Planı Beyaz Yap
+                            </button>
+                            <button onclick="executeImageCommand('cift_resim')" class="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 text-sm">
+                                <i class="fas fa-layer-group mr-2"></i>Çift Resim Overlay
+                            </button>
+                            <button onclick="executeImageCommand('resmi_cevir')" class="px-3 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 text-sm">
+                                <i class="fas fa-sync-alt mr-2"></i>Resmi Çevir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Görsel Sohbet -->
+                    <div class="bg-white rounded-lg p-4">
+                        <h3 class="font-bold text-gray-800 mb-3">
+                            <i class="fas fa-comments mr-2"></i>Görsel Sohbet
+                        </h3>
+                        <div class="h-32 overflow-y-auto mb-3 p-3 bg-gray-50 rounded-lg" id="imageChatMessages">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Görsel hakkında komut vermek için mesaj yazın...
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <input 
+                                type="text" 
+                                id="imageChatInput" 
+                                placeholder="Görsel komutu yazın (örn: 'arka planı siyah yap')" 
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                onkeypress="if(event.key === 'Enter') sendImageChatMessage()"
+                            >
+                            <button 
+                                onclick="sendImageChatMessage()" 
+                                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                            >
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Features Section -->
+            <div class="mt-8 text-center">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white bg-opacity-90 rounded-lg p-4">
+                        <i class="fas fa-brain text-3xl text-purple-600 mb-2"></i>
+                        <h3 class="font-bold text-gray-800">Akıllı AI</h3>
+                        <p class="text-sm text-gray-600">Her konuda kapsamlı bilgi</p>
+                    </div>
+                    <div class="bg-white bg-opacity-90 rounded-lg p-4">
+                        <i class="fas fa-palette text-3xl text-blue-600 mb-2"></i>
+                        <h3 class="font-bold text-gray-800">Görsel Editör</h3>
+                        <p class="text-sm text-gray-600">Profesyonel görsel düzenleme</p>
+                    </div>
+                    <div class="bg-white bg-opacity-90 rounded-lg p-4">
+                        <i class="fas fa-shield-alt text-3xl text-green-600 mb-2"></i>
+                        <h3 class="font-bold text-gray-800">Bağımsız</h3>
+                        <p class="text-sm text-gray-600">Hiçbir yere bağlı değil</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="smart-ai.js"></script>
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
